@@ -1,0 +1,38 @@
+# BIL 002 Kısım 2 · UI testleri GitHub Actions'ta headless Chrome ile koşar.
+name: UI testleri
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  selenium-cucumber:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Kodu çek
+        uses: actions/checkout@v4
+
+      - name: Java 17 kur
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Chrome kur
+        uses: browser-actions/setup-chrome@v1
+
+      - name: Senaryoları koş (headless)
+        run: ./mvnw -B test -Dheadless=true
+
+      - name: Cucumber raporunu ve ekran görüntülerini sakla
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cucumber-raporu
+          path: |
+            target/cucumber-rapor.html
+            target/ekran-goruntuleri/
